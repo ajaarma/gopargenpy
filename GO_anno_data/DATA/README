@@ -1,0 +1,15 @@
+# files obtained this way
+
+wget http://www.geneontology.org/gene-associations/gene_association.tair.gz
+
+wget http://purl.obolibrary.org/obo/go/go-basic.obo
+
+gunzip *gz
+
+# I moved to code folder
+
+cd ../CODE
+
+# I ran GOParGenPy. This is new version
+
+python GOParGenPy2.py -obo ../DATA/go-basic.obo -i ../DATA/gene_association.tair  -form 2 -o ../DATA/test_out -Ncol 10 -GOcol 5 -sort /data/petrit/OlgaProj_AffyData/ResultTables/Affy_gene_names.txt

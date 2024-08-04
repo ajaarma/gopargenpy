@@ -1,0 +1,214 @@
+#!\usr\bin\python
+
+################################################################################
+#                                                                              #
+#GOParGenPy: A High Throughput method to generate Gene Ontology data matrices  #
+#Copyright (C) 2012 Holm Group, University of Helsinki                         #
+#                                                                              #
+#author: Ajay Anand Kumar (firstname.lastname@helsinki.fi                      #                                                
+#                                                                              #
+################################################################################
+
+
+
+import time
+import sys
+import re
+from GeneOntology import * 
+from python_diagnostics import *
+
+#obo_file = inp_flag = inp_flag_value = header_flag = header_val=altid_flag = altid_val = col_ind1 = col_ind2 = mat_flag = []
+#try:
+obo_file = inp_flag_val = hd_fl_val = al_fl_val = inp_file = out_fl_val = mt_fl_valR = mt_fl_valC = mt_fl_valS = []
+if __name__=="__main__":
+   command = sys.argv
+   if re.search("\-help",",".join(command)):
+      #if hlp_ind:
+      print "\n"
+      print "***COMMAND***"
+      print "$ python   GOParGenPy   -obo obo_file   -i  [input_value]  -h  [header_value] -a [altid_value]  user_annotation_file_name -o output_file_name   -m   gene_col_num   GO_col_num    mat_flag"
+      print "\n"
+      print "***Parameters Description***\n"
+      print "obo_file                  :  Standard Gene Ontology OBO file"
+      print " -i                       :  input file format flag"
+      print "input_value               :  Integer Value 1, 2, 3. For individual types see GOParGenPy webpage for further details"
+      print "                             1 : For user defined tab separated input annotation file"
+      print "                             2 : For species specific annotation file"
+      print "                             3 : For UNIPROT-GOA file"
+      print " -h                       :  header flag for the input file"
+      print "header_value              :  Boolean Type T or F"
+      print " -a                       :  Alternate id flag for the GO ids"
+      print "altid_value               :  Boolean Type T or F"
+      print "user_annotation_file_name :  Input annotation file. File should only be TAB (\\t) separated"
+      print " -o                       :  The output file parameter [OPTIONAL]"
+      print "output_file_name          :  User specific name for the all the output. If no given INPUT file name will be used"
+      print "-m                        :  Matrix parameters flag"
+      print "gene_col_num              :  The column number(s) of the tab separated annotation file that contains gene ids and other descriptors. E.g. 2,4,5,6 or just 2"
+      print "GO_col_num                :  The column number(singular value) of tab separated annotation file that contains GO IDs."
+      print "mat_type                  :  S or F. S for sparse matrix and F for full binary matrix"
+      print "\n"
+      print "See GOParGenPy webpage for detailed usage "
+      print " http://ekhidna.biocenter.helsinki.fi/users/ajay/private/GOParGenPy/GOParGenPy/ "
+      print "\n"
+      sys.exit()
+   
+   else:   
+      try:
+         ob_ind = command.index("-obo")
+         obo_file = command[ob_ind+1]
+      except ValueError:
+         print "OBO flag missing!"
+	 print "Run python GOParGenPy -help if needed"
+         sys.exit()
+ 
+      try:
+         a1 = 1
+         inp_flag_ind = command.index("-i")
+         a1 = 0
+         a2 = 1
+         inp_flag_val = int(command[inp_flag_ind+1])
+         a2 = 0
+
+      except ValueError:
+         if a1 ==1:
+            print "Input flag missing! "
+	    print "Run python GOParGenPy -help if needed"
+         if a2 ==1:
+            print "Please enter an integer value for input flag parameter"
+	    print "Run python GOParGenPy -help"
+         sys.exit()
+      try:
+
+         hd_fl_ind = command.index("-h")
+         hd_fl_val = command[hd_fl_ind+1]
+         if hd_fl_val.lower()=='t' or hd_fl_val.lower()=='f':
+            hd_fl_val = hd_fl_val.lower()
+         else:
+            print "The header value is missing or incorrect" 
+	    print "Run python GOParGenPy -help if needed"
+            sys.exit()
+ 
+      except ValueError:
+         print "Header flag is missing!"
+	 print "Run python GOParGenPy -help if needed"
+         sys.exit()
+      try:
+
+         al_fl_ind = command.index("-a")
+         al_fl_val = command[al_fl_ind+1]
+         if al_fl_val.lower()=='t' or al_fl_val.lower()=='f':
+            al_fl_val = al_fl_val.lower()
+         else:
+            print "Alt ID flag value is incorrect!"
+	    print "Run python GOParGenPy -help if needed"
+            sys.exit()
+
+      except ValueError:
+         print " Alt ID flag is missing!"
+	 print " Alt ID flag is set to TRUE"
+	 al_fl_val = "t"
+	 #print "Run python GOParGenPy -help if needed"
+         #sys.exit()
+
+      try:
+         inp_file = command[al_fl_ind+2]
+         out_fl_ind = command.index("-o")
+         out_fl_val = command[out_fl_ind+1]
+
+      except ValueError:
+         print " No output file name Specified! The default output file name will be used"
+	 print "Run python GOParGenPy -help if needed"
+         sys.exit()
+      except NameError:
+         #print " Alt Id parameter is missing"
+         sys.exit()
+      #continue
+
+      try:
+         mt_fl_ind = command.index("-m")
+         mt_fl_valR = command[mt_fl_ind+1]
+      
+         mt_fl_valC = int(command[mt_fl_ind+2])
+         mt_fl_valM = command[mt_fl_ind+3]
+
+         if mt_fl_valM.lower() =='s'or mt_fl_valM.lower()=='f':
+            mt_fl_valM = mt_fl_valM.lower()
+         else:
+            print "Enter valid matrix flag: S or F"
+	    print "Run python GOParGenPy -help if needed"
+            sys.exit()
+
+      except ValueError:
+         print "The matrix flag is missing"
+         print "Please enter an integer value for matrix Rows and Columns"
+	 print "Run python GOParGenPy -help if needed"
+         sys.exit()
+   
+      #if re.search("\.",inp_file):	#PETRI MODIFIED HERE
+      #   tmp = re.split("\.",inp_file)
+      if out_fl_val:
+            tmp = out_fl_val.split(".")
+            if len( tmp[-1]) <= 4: # Max length for file extension
+	       tmp = tmp[:-1]
+            file_arg = ".".join( tmp )
+            file_str = file_arg+'_preprocess_file.txt'
+      else:
+            tmp = inp_file.split("." )
+	    if len( tmp[-1]) <= 4: # Max length for file extension
+	       tmp = tmp[:-1]
+            file_arg = ".".join( tmp )
+            file_str = file_arg+'_preprocess_file.txt'
+      
+      
+   
+
+##################################
+#                                #
+# Main Process starts here       #
+#                                #
+##################################
+
+      method = GOMethod()
+      engine = OBOEngine()  
+      if inp_flag_val ==1:
+         print "Processing input File of type 1 .....\n"
+         print inp_file,"\t",mt_fl_valR,"\t",mt_fl_valC,"\t",hd_fl_val
+         method.randomInpParser(inp_file, mt_fl_valR, mt_fl_valC, hd_fl_val, file_arg)
+      elif inp_flag_val ==2:
+         print "Processing Input File of type 2 .....\n"
+         method.modelOrgParser(inp_file, mt_fl_valR, mt_fl_valC, mt_fl_valM, file_arg)
+      elif inp_flag_val ==3:
+         print "Processing Input File of type 3 .....\n"
+         method.uniProtParser(inp_file, mt_fl_valR, mt_fl_valC, mt_fl_valM, file_arg)
+      elif inp_flag_val ==4:	#This is Ensembl data  #PETRI MODIFIED HERE
+         print "Processing Input File of type 4 .....\n"
+         method.modelOrgParserPT(inp_file, mt_fl_valR, mt_fl_valC, file_arg, header_count = 1)
+         #method.ReorderDataTable(file_arg + "_preprocess_file.txt", "../../vasynyt_testi", 0, 2, 1, header2 = 1 )
+	 #method.ReorderDataTable2(file_arg + "_preprocess_file.txt", "../../vasynyt_testi", 0, 2, 1, header2 = 1 )
+      else:
+         print "The input file format flag value entered is incorrect. Please enter either 1,2 or 3 for respective file format!"
+         sys.exit()
+
+      t0 = time.clock()
+      print "Processing OBO File.....\n"
+      GO_hash = engine.goHashTable(obo_file)
+      print "Generating Ancestor Terms...\n"
+      method.getFile_go(GO_hash,file_str,al_fl_val)       
+      #print "check file name" + file_arg
+      rownames,colnames,ind_go_hash = method.printRow_Col(file_arg+'_'+'gene_go.txt',GO_hash)
+      print_variables2(vars())
+      if mt_fl_valM =='S'or mt_fl_valM == 's':
+         print "Printing out Sparse Matrix"
+         method.getSparseMat_alt(file_arg+'_'+'gene_go.txt',ind_go_hash)
+      elif mt_fl_valM =='F' or mt_fl_valM =='f':
+         print "Printing out Full matrix"
+         full_mat = method.getFullMat(file_arg+'_'+'gene_go.txt',rownames,colnames,ind_go_hash)
+         file_mat = file_arg+'_'+'binary_matrix'
+         mat = open(file_mat,'w')
+         for i in range(len(rownames)):
+            for j in range(len(colnames)):
+               print >>mat,full_mat[i][j],"\t",
+            print >>mat,"\n"
+
+         mat.close()
+      print "Total execution time taken:",time.clock()-t0,"seconds"

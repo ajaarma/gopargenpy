@@ -1,0 +1,28 @@
+# This folder includes the most recent version of GOParGenPy
+# 
+# I put here the commands that I've used 
+
+# GET HELP
+
+python GOParGenPy2.py -h
+
+# Test with table input (form 1)
+# Notice how GOParGenPy finds alternative IDs for old GO IDs
+
+python GOParGenPy2.py -obo ../DATA/go-basic.obo -i birch_unigenes_annotation.tab  -form 1 -o ../DATA/birch_test -Ncol 2  -GOcol 8 
+
+# Test with TAIR annotation data 
+# Here I take many name columns (3 10 11) as this GO data is very badly structured
+#
+# Check the generated row names ../DATA/test_rownames.txt and you see the problem
+
+ python GOParGenPy2.py -obo ../DATA/go-basic.obo -i ../DATA/gene_association.tair  -form 2 -o ../DATA/test -Ncol 3 10 11  -GOcol 5 
+ 
+# Here is similar command to one above. 
+# Except now the data is sorted to match the ID list that is given as one input
+
+python GOParGenPy2.py -obo ../DATA/go-basic.obo -i ../DATA/gene_association.tair  -form 2 -o ../DATA/new_test -Ncol 3 10 11  -GOcol 5 -sort /data/petrit/OlgaProj_AffyData/ResultTables/Affy_gene_names.txt
+
+# Here is a test with BioMART output table
+
+ python GOParGenPy2.py -obo ../DATA/go-basic.obo -i ../DATA/martQuery_table.txt  -form 4 -o ../DATA/mart_test -Ncol 1  -GOcol 5 
