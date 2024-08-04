@@ -18,16 +18,7 @@ Alternatively, the upadte version of GOParGenPy can also be accessed in this rep
     * GO_anno_data/CODE/README (Usage details with all different versions of GOParGenPy)
     * GO_annot_data/DATA/ (all different test data sets according to different formats)
 
-### Todos
 
- - Add the code/functionality for processing HPO, DO, PO data
- - Add more documentation
-
-### Contact
-Ajay Anand Kumar, aakumar1707@gmail.com
-
-
-**Free Software, Hell Yeah!**
 
 
 
